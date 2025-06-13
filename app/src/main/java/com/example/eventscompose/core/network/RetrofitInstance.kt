@@ -1,12 +1,12 @@
 package com.example.eventscompose.core.network
 
-import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-object RetrofitInstance{
-    fun create() : Retrofit{
+object RetrofitInstance {
+    fun create(): Retrofit {
         return Retrofit.Builder()
-            .addConverterFactory()
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 }

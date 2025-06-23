@@ -4,8 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 
     //hilt
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
 
     //serialization
     alias(libs.plugins.kotlin.serialization)
@@ -69,8 +67,7 @@ dependencies {
     implementation(libs.retrofit)
 
     //hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
+
 
     // For instrumentation tests
 //    androidTestImplementation  ("com.google.dagger:hilt-android-testing:2.56.2")
@@ -85,6 +82,7 @@ dependencies {
     //GSON
     implementation(libs.converter.gson)
 
-
+    //http logs interceptor
     implementation(libs.logging.interceptor)
+
 }

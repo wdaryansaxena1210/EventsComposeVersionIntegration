@@ -1,19 +1,17 @@
 package com.example.eventscompose.app
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventscompose.core.network.api.BaseConfigApi
-import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import com.example.eventscompose.core.utils.RemoteConfigManager
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class MainActivityViewModel @Inject constructor(val baseConfigApi: BaseConfigApi): ViewModel() {
+class MainActivityViewModel: ViewModel() {
     init {
         viewModelScope.launch {
             try {
-                val remoteConfig = baseConfigApi.getBaseConfig()
-
+//                val remoteConfig = baseConfigApi.getBaseConfig(RemoteConfigManager.BASE_URL)
             }catch (e : Exception){
                 e.printStackTrace()
             }

@@ -4,7 +4,6 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
 
-
 object HttpClient {
     fun create(): OkHttpClient {
         val logging = HttpLoggingInterceptor()

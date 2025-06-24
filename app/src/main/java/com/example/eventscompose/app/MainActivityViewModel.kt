@@ -5,17 +5,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventscompose.core.network.api.BaseConfigApi
 import com.example.eventscompose.core.utils.RemoteConfigManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.launch
 
-class MainActivityViewModel: ViewModel() {
+
+@HiltViewModel
+class MainActivityViewModel @Inject constructor() : ViewModel() {
     init {
         viewModelScope.launch {
             try {
-//                val remoteConfig = baseConfigApi.getBaseConfig(RemoteConfigManager.BASE_URL)
             }catch (e : Exception){
                 e.printStackTrace()
             }
         }
+    }
+
+    fun test(){
+        println("testing MainActivityViewModel")
     }
 }
 

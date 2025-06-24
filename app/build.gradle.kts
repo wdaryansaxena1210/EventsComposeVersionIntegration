@@ -4,8 +4,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 
     //hilt
-    id("com.google.devtools.ksp")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
+//    id("com.google.devtools.ksp")
+//    id("com.google.dagger.hilt.android")
 
     //serialization
     alias(libs.plugins.kotlin.serialization)
@@ -69,11 +71,9 @@ dependencies {
     implementation(libs.retrofit)
 
     //hilt
-    implementation("com.google.dagger:hilt-android:2.56.2")
-    ksp("com.google.dagger:hilt-android-compiler:2.56.2")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-
-
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     // For instrumentation tests
 //    androidTestImplementation  ("com.google.dagger:hilt-android-testing:2.56.2")

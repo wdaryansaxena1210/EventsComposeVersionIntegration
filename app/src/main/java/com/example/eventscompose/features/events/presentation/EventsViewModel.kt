@@ -11,27 +11,23 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class EventsViewModel @Inject constructor(
-    private val remoteConfigManager : RemoteConfigManager,
-    private val api : EventsApi
+    private val remoteConfigManager: RemoteConfigManager,
+    private val api: EventsApi
 ) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            val config = remoteConfigManager.getBaseConfig()
-            Log.d("EventsViewModel", "Base config fetched: ${config.toString().take(100)}")
 
-            val apiDef = remoteConfigManager.getApiDefinition(listOf("events", "events.api"))
-            Log.d("EventsViewModel", "asasas Api definition fetched: ${apiDef.toString().take(100)}")
+            val apiDef = remoteConfigManager.getApiValue(listOf("events", "events.api"))
 
-            val response = api.getEvents("https://www.event.iastate.edu/api/events/", "-1")
-            Log.d("EventsViewModel", "Events fetched: ${response.toString().take(100)}")
+            val response = api.getEvents(apiDef!!.url, key=apiDef.parameters["key"].toString())
         }
     }
 
     sealed class EventsUiState {
     }
 
-    sealed class EventsNavigationEvent{
+    sealed class EventsNavigationEvent {
 
     }
 }

@@ -12,7 +12,7 @@ interface EventsApi {
     suspend fun getEvents(
         @Url url : String,
         @Query("weeks") weeks : String = "-1",
-        @Query("key") page : String = "8aa084537a2184f6179c",
+        @Query("key") key : String,
         @QueryMap params : Map<String, String> = mapOf()
     ) : EventsResponse
 

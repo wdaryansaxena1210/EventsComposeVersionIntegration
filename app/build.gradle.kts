@@ -12,6 +12,7 @@ plugins {
     //serialization
     alias(libs.plugins.kotlin.serialization)
 
+    //extra
 }
 
 android {
@@ -70,6 +71,7 @@ dependencies {
     //retrofit
     implementation(libs.retrofit)
 
+
     //hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
@@ -84,11 +86,16 @@ dependencies {
 
     //serialization
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.retrofit2.kotlinx.serialization.converter)
+
 
     //GSON
     implementation(libs.converter.gson)
 
     //http logs interceptor
     implementation(libs.logging.interceptor)
+
+    //extra
+
 
 }

@@ -1,6 +1,6 @@
 package com.example.eventscompose.features.events.di
 
-import com.example.eventscompose.features.events.data.repository.EventsApi
+import com.example.eventscompose.features.events.data.EventsApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

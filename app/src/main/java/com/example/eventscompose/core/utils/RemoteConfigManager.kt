@@ -111,7 +111,7 @@ class RemoteConfigManager @Inject constructor(
         val updatedUrl = if (definition.url.startsWith("http://")) {
             definition.url.replaceFirst("http://", "https://")
         } else {
-            definition.url
+            definition.url //no change
         }
         return definition.copy(url = updatedUrl)
     }

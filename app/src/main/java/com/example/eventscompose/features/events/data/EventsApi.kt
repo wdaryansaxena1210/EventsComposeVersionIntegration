@@ -7,6 +7,9 @@ import retrofit2.http.Query
 import retrofit2.http.QueryMap
 import retrofit2.http.Url
 
+
+//TODO : safeApiCall wrapper
+
 interface EventsApi {
 
     @GET

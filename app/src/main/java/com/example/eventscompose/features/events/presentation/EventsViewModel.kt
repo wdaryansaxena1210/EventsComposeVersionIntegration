@@ -102,7 +102,7 @@ class EventsViewModel @Inject constructor(
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         //"yyyy-MM-dd HH:mm:ss" to "yyyy-MM-dd"
         val sortedEvents =
-            events.sortedByDescending { dateFormat.parse(it.eventDate.split(" ")[0]) }
+            events.sortedByDescending { dateFormat.parse(it.eventDate.split(" ")[0]) }.reversed()
         val groupedEvents: Map<String, List<EventsResponseItem>> =
             sortedEvents.groupBy { it.eventDate.split(" ")[0] }
 

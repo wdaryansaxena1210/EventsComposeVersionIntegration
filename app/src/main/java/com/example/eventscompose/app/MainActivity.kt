@@ -4,13 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eventscompose.core.ui.theme.EventsComposeTheme
-import com.example.eventscompose.features.events.presentation.EventScreen
+import com.example.eventscompose.features.events.presentation.events.EventScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -29,7 +30,9 @@ class MainActivity: ComponentActivity() {
                 }
 
                 Scaffold { innerPadding ->
-                    EventScreen(modifier = Modifier.padding(innerPadding))
+                    Box(modifier = Modifier.padding(innerPadding)){
+                        EventScreen()
+                    }
                 }
             }
         }

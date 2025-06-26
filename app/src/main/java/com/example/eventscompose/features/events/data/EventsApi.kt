@@ -30,4 +30,5 @@ interface EventsApi {
         @Query("categories") categories : String = "-1",
         @QueryMap params: Map<String, String> = mapOf()
     ): CategoriesResponse
+
 }

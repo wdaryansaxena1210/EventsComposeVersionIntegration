@@ -3,7 +3,7 @@ package com.example.eventscompose.features.events.data.model
 import com.google.gson.annotations.SerializedName
 
 
-data class EventsResponseItem(
+data class EventsResponseItem (
     val category: String,
     @SerializedName("channel_id") val channelId: String,
     val cost: String,

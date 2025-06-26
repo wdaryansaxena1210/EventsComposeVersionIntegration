@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.eventscompose.core.utils.Resource
 import com.example.eventscompose.features.events.data.model.CategoriesResponse
 import com.example.eventscompose.features.events.data.model.EventsResponse
+import com.example.eventscompose.features.events.data.model.EventsResponseItem
 import com.example.eventscompose.features.events.domain.use_case.get_categories.GetCategoriesUseCase
 import com.example.eventscompose.features.events.domain.use_case.get_events.GetEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +13,8 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @HiltViewModel
 class EventsViewModel @Inject constructor(
@@ -23,6 +26,7 @@ class EventsViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
+        //TODO : convert to async await instead of separate coroutines
         viewModelScope.launch {
             getEvents()
         }
@@ -76,6 +80,14 @@ class EventsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun sortEventsByDate(events : EventsResponse) : Map<String, List<EventsResponseItem>> {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val sortedEvents = events.sortedByDescending { dateFormat.parse(it.datePosted) }
+        val groupedEvents: Map<String, List<EventsResponseItem>> = sortedEvents.groupBy { it.datePosted }
+
+        return groupedEvents
     }
 
     sealed class EventsUiState {

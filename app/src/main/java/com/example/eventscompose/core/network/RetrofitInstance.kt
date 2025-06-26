@@ -13,6 +13,7 @@ object RetrofitInstance {
         isLenient = true
     }
 
+    //TODO try using Moshi instead of Gson as convertor factory
     fun create(client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl("https://dummy.base.url/")

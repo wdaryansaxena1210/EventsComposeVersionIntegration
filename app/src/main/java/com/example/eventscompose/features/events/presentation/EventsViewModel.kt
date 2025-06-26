@@ -1,5 +1,8 @@
 package com.example.eventscompose.features.events.presentation
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventscompose.core.utils.Resource
@@ -14,6 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @HiltViewModel
@@ -82,12 +87,48 @@ class EventsViewModel @Inject constructor(
         }
     }
 
-    fun sortEventsByDate(events : EventsResponse) : Map<String, List<EventsResponseItem>> {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val sortedEvents = events.sortedByDescending { dateFormat.parse(it.datePosted) }
-        val groupedEvents: Map<String, List<EventsResponseItem>> = sortedEvents.groupBy { it.datePosted }
+
+    /*
+    Functions below are related to parsing Time and Date string to objects
+     */
+    fun dateToDay(date: String): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val eventDate = dateFormat.parse(date.split(" ")[0])
+        val dayFormat = SimpleDateFormat("EEEE, MMMM d", Locale.getDefault())
+        return eventDate?.let { dayFormat.format(it).toString() } ?: " "
+    }
+
+    fun sortEventsByDate(events: EventsResponse): Map<String, List<EventsResponseItem>> {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        //"yyyy-MM-dd HH:mm:ss" to "yyyy-MM-dd"
+        val sortedEvents =
+            events.sortedByDescending { dateFormat.parse(it.eventDate.split(" ")[0]) }
+        val groupedEvents: Map<String, List<EventsResponseItem>> =
+            sortedEvents.groupBy { it.eventDate.split(" ")[0] }
+
+        Log.d("sortEventsByDate", "groupedEvents: $groupedEvents")
 
         return groupedEvents
+    }
+
+
+
+    //needs android Oreo (android 8) or above
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun findStartAndEndTime(startTime: String, duration: String): Pair<String, String> {
+        val start = LocalTime.parse(startTime) // format: "HH:mm:ss"
+        val formatter = DateTimeFormatter.ofPattern("h:mm a")
+        val formattedStart = start.format(formatter)
+
+        if (duration.isEmpty() || duration == "0:00") {
+            return Pair(formattedStart, "")
+        }
+
+        val (durHours, durMinutes) = duration.split(":").map { it.toInt() }
+        val end = start.plusHours(durHours.toLong()).plusMinutes(durMinutes.toLong())
+        val formattedEnd = end.format(formatter)
+
+        return Pair(formattedStart, formattedEnd)
     }
 
     sealed class EventsUiState {

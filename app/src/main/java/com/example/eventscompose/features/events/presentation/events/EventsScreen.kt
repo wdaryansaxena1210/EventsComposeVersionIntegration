@@ -24,13 +24,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.eventscompose.features.events.data.model.EventsResponse
 import com.example.eventscompose.features.events.data.model.EventsResponseItem
 import com.example.eventscompose.features.events.presentation.EventsViewModel
 import com.example.eventscompose.features.events.presentation.EventsViewModel.EventsUiState
@@ -66,7 +64,7 @@ fun EventScreen(
             is EventsViewModel.EventsUiState.Success -> {
                 EventsSuccessScreen(
                     events = (uiState as EventsUiState.Success).events
-                        ?: EventsResponse(),
+                        ?: emptyList<EventsResponseItem>(),
                     viewModel = viewModel
                 )
             }
@@ -78,7 +76,7 @@ fun EventScreen(
 @Composable
 fun EventsSuccessScreen(
     modifier: Modifier = Modifier,
-    events: EventsResponse,
+    events: List<EventsResponseItem>,
     viewModel: EventsViewModel
 ) {
     Scaffold(
@@ -107,7 +105,7 @@ fun TopBarEvents() {
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EventList(events: EventsResponse, vm: EventsViewModel) {
+fun EventList(events: List<EventsResponseItem>, vm: EventsViewModel) {
     //group events by date
     val groupedEvents: Map<String, List<EventsResponseItem>> = remember(events) {
         vm.sortEventsByDate(
@@ -115,16 +113,23 @@ fun EventList(events: EventsResponse, vm: EventsViewModel) {
         )
     }
 
-    Log.d("EventList", "groupedEvents: $groupedEvents")
+    Log.d("EventList", "events are this: $events")
+    Log.d("EventList", "END EVENTS")
 
     //render sticky-header + list of events
     LazyColumn {
         groupedEvents.values.forEach { eventList ->
+            if (vm.isNotInFuture(eventList[0].eventDate)) {
+                stickyHeader {
+                    EventsDateHeader(
+                        eventList[0].eventDate.split(" ")[0],
+                        vm::dateToDay
+                    )
+                }
 
-            stickyHeader { EventsDateHeader(eventList[0].eventDate.split(" ")[0], vm::dateToDay) }
-
-            items(eventList) {
-                EventItem(it, vm::findStartAndEndTime)
+                items(eventList) {
+                    EventItem(it, vm::findStartAndEndTime)
+                }
             }
         }
     }

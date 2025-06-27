@@ -6,8 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventscompose.core.utils.Resource
-import com.example.eventscompose.features.events.data.model.CategoriesResponse
-import com.example.eventscompose.features.events.data.model.EventsResponse
+import com.example.eventscompose.features.events.data.model.CategoriesResponseItem
 import com.example.eventscompose.features.events.data.model.EventsResponseItem
 import com.example.eventscompose.features.events.domain.use_case.get_categories.GetCategoriesUseCase
 import com.example.eventscompose.features.events.domain.use_case.get_events.GetEventsUseCase
@@ -98,7 +97,7 @@ class EventsViewModel @Inject constructor(
         return eventDate?.let { dayFormat.format(it).toString() } ?: " "
     }
 
-    fun sortEventsByDate(events: EventsResponse): Map<String, List<EventsResponseItem>> {
+    fun sortEventsByDate(events: List<EventsResponseItem>): Map<String, List<EventsResponseItem>> {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         //"yyyy-MM-dd HH:mm:ss" to "yyyy-MM-dd"
         val sortedEvents =
@@ -131,9 +130,20 @@ class EventsViewModel @Inject constructor(
         return Pair(formattedStart, formattedEnd)
     }
 
+    fun isNotInFuture(date: String): Boolean {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val eventDate = dateFormat.parse(date.split(" ")[0])
+        val currentDate = dateFormat.parse(dateFormat.format(System.currentTimeMillis()))
+        if (eventDate != null) {
+            Log.d("isNotInFuture", "eventDate: $eventDate and currentDate: $currentDate")
+            return eventDate <= currentDate
+        }
+        return false
+    }
+
     sealed class EventsUiState {
         object Nothing : EventsUiState()
-        data class Success(val events: EventsResponse?, val categories: CategoriesResponse?) :
+        data class Success(val events: List<EventsResponseItem>?, val categories: List<CategoriesResponseItem>?) :
             EventsUiState()
 
         data class Error(val message: String?) : EventsUiState()

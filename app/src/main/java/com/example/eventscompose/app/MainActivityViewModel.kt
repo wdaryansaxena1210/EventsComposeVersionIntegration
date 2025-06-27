@@ -25,7 +25,6 @@ class MainActivityViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val baseConfig  = remoteConfigManager.getBaseConfig()
-            Log.d("MainActivityViewModel", "Base config fetched: ${baseConfig.toString().take(100)}")
         }
     }
 

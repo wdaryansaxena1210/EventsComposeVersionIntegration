@@ -26,7 +26,6 @@ class GetCategoriesUseCase @Inject constructor(
                     url = categoriesApiVal!!.url,
                     key = categoriesApiVal.parameters["key"].toString()
                 )
-                Log.d("GetCategoriesUseCase", "Response: $response")
                 emit(Resource.Success(response))
             } catch (e: Exception) {
                 emit(Resource.Error(message = e.message.toString()))

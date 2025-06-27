@@ -44,10 +44,7 @@ class RemoteConfigManager @Inject constructor(
 
             //Cache BaseConfig
             this.baseConfigCache = baseConfig
-            Log.d(
-                "RemoteConfigManager",
-                "Base config fetched: ${this.baseConfigCache.toString().take(100)}"
-            )
+
         } catch (e: Exception) {
             Log.e("RemoteConfigManager", "Error fetching base config: ${e.message}")
             e.printStackTrace()
@@ -62,10 +59,6 @@ class RemoteConfigManager @Inject constructor(
         if (baseConfigCache == null)
             delay(3000)
 
-        Log.d(
-            "RemoteConfigManager",
-            "Base config before finding API's Value: ${this.baseConfigCache.toString().take(100)}"
-        )
         return findApiValue(baseConfigCache!!, path)
     }
 

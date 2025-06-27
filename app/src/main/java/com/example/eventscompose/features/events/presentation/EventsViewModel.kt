@@ -105,7 +105,6 @@ class EventsViewModel @Inject constructor(
         val groupedEvents: Map<String, List<EventsResponseItem>> =
             sortedEvents.groupBy { it.eventDate.split(" ")[0] }
 
-        Log.d("sortEventsByDate", "groupedEvents: $groupedEvents")
 
         return groupedEvents
     }
@@ -135,7 +134,6 @@ class EventsViewModel @Inject constructor(
         val eventDate = dateFormat.parse(date.split(" ")[0])
         val currentDate = dateFormat.parse(dateFormat.format(System.currentTimeMillis()))
         if (eventDate != null) {
-            Log.d("isNotInFuture", "eventDate: $eventDate and currentDate: $currentDate")
             return eventDate <= currentDate
         }
         return false

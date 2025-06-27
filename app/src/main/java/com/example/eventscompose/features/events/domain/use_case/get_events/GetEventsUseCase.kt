@@ -22,7 +22,6 @@ class GetEventsUseCase @Inject constructor(
 
             try {
                 val response = api.getEvents(url = eventsApiVal!!.url, key = eventsApiVal.parameters["key"].toString())
-                Log.d("GetEventsUseCase", "Response: $response")
                 emit(Resource.Success(response))
             }
             catch (e : Exception){

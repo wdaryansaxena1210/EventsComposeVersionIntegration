@@ -87,9 +87,26 @@ class EventsViewModel @Inject constructor(
     }
 
 
+
+
+
+
+    sealed class EventsUiState {
+        object Nothing : EventsUiState()
+        data class Success(val events: List<EventsResponseItem>?, val categories: List<CategoriesResponseItem>?) :
+            EventsUiState()
+
+        data class Error(val message: String?) : EventsUiState()
+        object Loading : EventsUiState()
+    }
+
+    sealed class EventsNavigationEvent {
+    }
+
+
     /*
-    Functions below are related to parsing Time and Date string to objects
-     */
+ Functions below are related to parsing Time and Date string to objects
+  */
     fun dateToDay(date: String): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val eventDate = dateFormat.parse(date.split(" ")[0])
@@ -122,33 +139,15 @@ class EventsViewModel @Inject constructor(
             return Pair(formattedStart, "")
         }
 
-        val (durHours, durMinutes) = duration.split(":").map { it.toInt() }
+        val temp = duration.split(":")
+        Log.d("findStartAndEndTime", "temp is $temp")
+
+
+        val (durHours, durMinutes) = duration.split(":").map { it.toIntOrNull() ?: 0 }
         val end = start.plusHours(durHours.toLong()).plusMinutes(durMinutes.toLong())
         val formattedEnd = end.format(formatter)
 
         return Pair(formattedStart, formattedEnd)
-    }
-
-    fun isNotInFuture(date: String): Boolean {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val eventDate = dateFormat.parse(date.split(" ")[0])
-        val currentDate = dateFormat.parse(dateFormat.format(System.currentTimeMillis()))
-        if (eventDate != null) {
-            return eventDate <= currentDate
-        }
-        return false
-    }
-
-    sealed class EventsUiState {
-        object Nothing : EventsUiState()
-        data class Success(val events: List<EventsResponseItem>?, val categories: List<CategoriesResponseItem>?) :
-            EventsUiState()
-
-        data class Error(val message: String?) : EventsUiState()
-        object Loading : EventsUiState()
-    }
-
-    sealed class EventsNavigationEvent {
     }
 }
 

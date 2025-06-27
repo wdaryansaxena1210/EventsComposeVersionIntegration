@@ -140,7 +140,6 @@ class EventsViewModel @Inject constructor(
         }
 
         val temp = duration.split(":")
-        Log.d("findStartAndEndTime", "temp is $temp")
 
 
         val (durHours, durMinutes) = duration.split(":").map { it.toIntOrNull() ?: 0 }

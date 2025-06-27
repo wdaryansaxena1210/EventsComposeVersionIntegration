@@ -6,21 +6,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.eventscompose.features.events.data.model.EventsResponseItem
 import com.example.eventscompose.features.events.presentation.EventsViewModel
 import com.example.eventscompose.features.events.presentation.EventsViewModel.EventsUiState
 import com.example.eventscompose.features.events.presentation.events.component.EventList
+import com.example.eventscompose.features.events.presentation.events.component.TopBarEvents
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -29,6 +28,7 @@ fun EventScreen(
     viewModel: EventsViewModel = hiltViewModel()
 ) {
 
+    //collect the state and display either the Error Screen, Success Screen or Loading screen
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Box(
@@ -38,6 +38,7 @@ fun EventScreen(
     ) {
 
         when (uiState) {
+            //error screen
             is EventsUiState.Error -> {
                 Text(uiState::class.simpleName.toString())
             }
@@ -50,7 +51,7 @@ fun EventScreen(
                 Text(uiState::class.simpleName.toString())
             }
 
-            is EventsViewModel.EventsUiState.Success -> {
+            is EventsUiState.Success -> {
                 EventsSuccessScreen(
                     events = (uiState as EventsUiState.Success).events
                         ?: emptyList<EventsResponseItem>(),
@@ -68,30 +69,32 @@ fun EventsSuccessScreen(
     events: List<EventsResponseItem>,
     viewModel: EventsViewModel
 ) {
+
+    //first group all events by date
+    val groupedEvents: Map<String, List<EventsResponseItem>> = remember(events) {
+        viewModel.sortEventsByDate(
+            events
+        )
+    }
+
+    //top app bar in scaffold
     Scaffold(
-        topBar = { TopBarEvents() }
+        topBar = { TopBarEvents(
+            groupedEvents = groupedEvents,
+            selectedCategory = "",
+//            onCategorySelected = "",
+//            onCalendarToggle = "",
+            showCategoryMenu = false,
+//            onToggleCategoryMenu = ""
+        ) }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
 
-            //title of screen
-            Text(
-                text = "Events",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(8.dp)
-            )
-
             //actual list of events
-            EventList(events = events, vm = viewModel)
+            EventList(groupedEvents = groupedEvents, vm = viewModel)
         }
     }
 }
-
-@Composable
-fun TopBarEvents() {
-}
-
-
 
 
 

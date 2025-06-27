@@ -14,13 +14,7 @@ import com.example.eventscompose.features.events.presentation.EventsViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EventList(events: List<EventsResponseItem>, vm: EventsViewModel) {
-    //group events by date
-    val groupedEvents: Map<String, List<EventsResponseItem>> = remember(events) {
-        vm.sortEventsByDate(
-            events
-        )
-    }
+fun EventList(groupedEvents: Map<String,List<EventsResponseItem>>, vm: EventsViewModel) {
 
     //render sticky-header + list of events
     LazyColumn {

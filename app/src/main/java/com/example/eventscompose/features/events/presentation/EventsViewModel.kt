@@ -1,7 +1,6 @@
 package com.example.eventscompose.features.events.presentation
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -86,8 +85,9 @@ class EventsViewModel @Inject constructor(
         }
     }
 
-
-
+    fun getEventById(targetId: String) : EventsResponseItem?{
+        return (uiState.value as EventsUiState.Success).events?.find { it.id == targetId }
+    }
 
 
 
@@ -139,7 +139,6 @@ class EventsViewModel @Inject constructor(
             return Pair(formattedStart, "")
         }
 
-        val temp = duration.split(":")
 
 
         val (durHours, durMinutes) = duration.split(":").map { it.toIntOrNull() ?: 0 }
@@ -149,4 +148,3 @@ class EventsViewModel @Inject constructor(
         return Pair(formattedStart, formattedEnd)
     }
 }
-

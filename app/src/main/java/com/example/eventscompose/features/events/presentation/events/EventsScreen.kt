@@ -15,6 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.example.eventscompose.app.navigation.route.EventRoutes
 import com.example.eventscompose.features.events.data.model.EventsResponseItem
 import com.example.eventscompose.features.events.presentation.EventsViewModel
 import com.example.eventscompose.features.events.presentation.EventsViewModel.EventsUiState
@@ -25,6 +27,7 @@ import com.example.eventscompose.features.events.presentation.events.component.T
 @Composable
 fun EventScreen(
     modifier: Modifier = Modifier,
+    navController: NavController,
     viewModel: EventsViewModel = hiltViewModel()
 ) {
 
@@ -55,7 +58,8 @@ fun EventScreen(
                 EventsSuccessScreen(
                     events = (uiState as EventsUiState.Success).events
                         ?: emptyList<EventsResponseItem>(),
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    navController = navController
                 )
             }
         }
@@ -67,7 +71,8 @@ fun EventScreen(
 fun EventsSuccessScreen(
     modifier: Modifier = Modifier,
     events: List<EventsResponseItem>,
-    viewModel: EventsViewModel
+    viewModel: EventsViewModel,
+    navController: NavController
 ) {
 
     //first group all events by date
@@ -79,19 +84,25 @@ fun EventsSuccessScreen(
 
     //top app bar in scaffold
     Scaffold(
-        topBar = { TopBarEvents(
-            groupedEvents = groupedEvents,
-            selectedCategory = "",
+        topBar = {
+            TopBarEvents(
+                groupedEvents = groupedEvents,
+                selectedCategory = "",
 //            onCategorySelected = "",
 //            onCalendarToggle = "",
-            showCategoryMenu = false,
+                showCategoryMenu = false,
 //            onToggleCategoryMenu = ""
-        ) }
+            )
+        }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
 
             //actual list of events
-            EventList(groupedEvents = groupedEvents, vm = viewModel)
+            EventList(
+                groupedEvents = groupedEvents,
+                vm = viewModel,
+                onEventClick = { event -> navController.navigate(EventRoutes.EventDetails(event.id)) }
+            )
         }
     }
 }

@@ -15,21 +15,33 @@ import com.example.eventscompose.features.events.presentation.EventsViewModel
 fun EventList(
     groupedEvents: Map<String, List<EventsResponseItem>>,
     vm: EventsViewModel,
-    onEventClick: (EventsResponseItem) -> Unit
+    onEventClick: (EventsResponseItem) -> Unit,
+    selectedCategory: String
 ) {
 
     //render sticky-header + list of events
     LazyColumn {
         groupedEvents.values.forEach { eventList ->
+
+            //date header
             stickyHeader {
-                EventsDateHeader(
-                    eventList[0].eventDate.split(" ")[0],
-                    vm::dateToDay
-                )
+                //DON'T display date if there is no event with event.category==selectedCategory
+                if (selectedCategory == "-1" || eventList.any { event ->
+                        event.category.split(",").contains(selectedCategory)
+                    })
+                    EventsDateHeader(
+                        eventList[0].eventDate.split(" ")[0],
+                        vm::dateToDay
+                    )
             }
 
-            items(eventList) {
-                EventItem(it, vm::findStartAndEndTime, onEventClick = onEventClick)
+            //event list
+            items(eventList) { event ->
+                //filter event by category
+                if (selectedCategory == "-1" || event.category.split(",")
+                        .contains(selectedCategory)
+                )
+                    EventItem(event, vm::findStartAndEndTime, onEventClick = onEventClick)
             }
         }
     }

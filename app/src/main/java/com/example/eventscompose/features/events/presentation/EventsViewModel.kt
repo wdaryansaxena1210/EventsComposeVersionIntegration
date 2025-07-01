@@ -34,6 +34,7 @@ class EventsViewModel @Inject constructor(
         loadData()
     }
 
+    //load categories and events. emit loading, error or success states as needed
     private fun loadData() {
         viewModelScope.launch {
             combine(

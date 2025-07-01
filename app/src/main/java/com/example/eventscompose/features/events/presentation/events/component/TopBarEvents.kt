@@ -14,19 +14,20 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
+import com.example.eventscompose.features.events.data.model.CategoriesResponseItem
 import com.example.eventscompose.features.events.data.model.EventsResponseItem
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarEvents(
     groupedEvents: Map<String, List<EventsResponseItem>>,
-    selectedCategory: String,
-//    onCategorySelected: (String) -> Unit,
-//    onCalendarToggle: () -> Unit,
+    categories: List<CategoriesResponseItem>,
+    onCategorySelected: (String) -> Unit,
     showCategoryMenu: Boolean,
-//    onToggleCategoryMenu: () -> Unit
+//    onCalendarToggle: () -> Unit,
+    onToggleCategoryMenu: () -> Unit
 ) {
-    val tempCategories = listOf("All", "Sports", "Music", "Art")
 
     TopAppBar(
         title = {
@@ -43,7 +44,7 @@ fun TopBarEvents(
         },
         actions = {
             TextButton(onClick = {
-//                onToggleCategoryMenu()
+                onToggleCategoryMenu()
             }) {
                 Text("CATEGORIES")
             }
@@ -51,15 +52,20 @@ fun TopBarEvents(
             DropdownMenu(
                 expanded = showCategoryMenu,
                 onDismissRequest = {
-//                    onToggleCategoryMenu()
+                    onToggleCategoryMenu()
                 }
             ) {
-                tempCategories.forEach { category ->
+                DropdownMenuItem(text = { Text("All") }, onClick = {
+                    onCategorySelected("-1")
+                    onToggleCategoryMenu()
+                })
+
+                categories.forEach { category ->
                     DropdownMenuItem(
-                        text = { Text(category) },
+                        text = { Text(category.shortTitle) },
                         onClick = {
-//                            onCategorySelected(category)
-//                            onToggleCategoryMenu()
+                            onCategorySelected(category.id)
+                            onToggleCategoryMenu()
                         }
                     )
                 }

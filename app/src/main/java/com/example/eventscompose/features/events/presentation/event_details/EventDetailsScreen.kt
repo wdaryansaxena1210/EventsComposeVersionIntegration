@@ -89,8 +89,8 @@ private fun EventDetailsContent(
         topBar = { TopBarEventDetails(onBackClick = onBackClick) }) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
 
-            //check for invalid-format entries?
-            val (eventDate, eventStart) = event.eventDate.split(" ")
+            //check for invalid-format entries for eventDate?
+            val (eventDate, eventStart) = event.eventDate.split(" ") //what if no " "?
             val (startTime, endTime) = viewModel.findStartAndEndTime(
                 eventStart,
                 event.duration

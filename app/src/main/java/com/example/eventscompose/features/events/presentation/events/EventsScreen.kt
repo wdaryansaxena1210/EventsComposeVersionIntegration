@@ -11,18 +11,22 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.eventscompose.app.navigation.route.EventRoutes
+import com.example.eventscompose.features.events.data.model.CategoriesResponseItem
 import com.example.eventscompose.features.events.data.model.EventsResponseItem
 import com.example.eventscompose.features.events.presentation.EventsViewModel
 import com.example.eventscompose.features.events.presentation.EventsViewModel.EventsUiState
 import com.example.eventscompose.features.events.presentation.events.component.EventList
 import com.example.eventscompose.features.events.presentation.events.component.TopBarEvents
+import kotlin.Boolean
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -56,11 +60,13 @@ fun EventScreen(
             }
 
             is EventsUiState.Success -> {
-                EventsSuccessScreen(
+                EventsContent(
                     events = (uiState as EventsUiState.Success).events
                         ?: emptyList<EventsResponseItem>(),
                     viewModel = viewModel,
-                    navController = navController
+                    navController = navController,
+                    categories = (uiState as EventsUiState.Success).categories
+                        ?: emptyList<CategoriesResponseItem>()
                 )
             }
         }
@@ -69,11 +75,12 @@ fun EventScreen(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun EventsSuccessScreen(
+fun EventsContent(
     modifier: Modifier = Modifier,
     events: List<EventsResponseItem>,
-    viewModel: EventsViewModel,
-    navController: NavController
+    navController: NavController,
+    categories: List<CategoriesResponseItem>,
+    viewModel: EventsViewModel = hiltViewModel()
 ) {
 
     //first group all events by date
@@ -83,15 +90,20 @@ fun EventsSuccessScreen(
         )
     }
 
+    var selectedCategory by remember { mutableStateOf("-1") }
+    var showCategoryMenu: Boolean by remember { mutableStateOf(false) }
+
+
     //top app bar in scaffold
     Scaffold(
         topBar = {
             TopBarEvents(
                 groupedEvents = groupedEvents,
-                selectedCategory = "",
-//            onCategorySelected = "",
+                categories = categories,
+                onCategorySelected = { it -> selectedCategory = it },
+                showCategoryMenu = showCategoryMenu,
+                onToggleCategoryMenu = {showCategoryMenu = !showCategoryMenu},
 //            onCalendarToggle = "",
-                showCategoryMenu = false,
 //            onToggleCategoryMenu = ""
             )
         }
@@ -101,6 +113,7 @@ fun EventsSuccessScreen(
             //actual list of events
             EventList(
                 groupedEvents = groupedEvents,
+                selectedCategory = selectedCategory,
                 vm = viewModel,
                 onEventClick = { event -> navController.navigate(EventRoutes.EventDetails(event.id)) }
             )

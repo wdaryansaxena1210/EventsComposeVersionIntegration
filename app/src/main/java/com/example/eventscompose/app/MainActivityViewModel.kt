@@ -14,24 +14,24 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.launch
 
 
-@HiltViewModel
-class MainActivityViewModel @Inject constructor(
-    private val api : BaseConfigApi,
-    @ApplicationContext private val context : Context,
-    private val remoteConfigManager : RemoteConfigManager
-) : ViewModel() {
-
-    //load base config when the MainActivity is created
-    init {
-        viewModelScope.launch {
-            val baseConfig  = remoteConfigManager.getBaseConfig()
-        }
-    }
-
-    fun test(){
-        println("testing MainActivityViewModel")
-    }
-}
+//@HiltViewModel
+//class MainActivityViewModel @Inject constructor(
+//    private val api : BaseConfigApi,
+//    @ApplicationContext private val context : Context,
+//    private val remoteConfigManager : RemoteConfigManager
+//) : ViewModel() {
+//
+//    //load base config when the MainActivity is created
+//    init {
+//        viewModelScope.launch {
+//            val baseConfig  = remoteConfigManager.getBaseConfig()
+//        }
+//    }
+//
+//    fun test(){
+//        println("testing MainActivityViewModel")
+//    }
+//}
 
 
 //refernce for later

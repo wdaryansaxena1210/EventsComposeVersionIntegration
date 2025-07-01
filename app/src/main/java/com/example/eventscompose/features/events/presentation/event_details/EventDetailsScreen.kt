@@ -4,42 +4,87 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.eventscompose.core.ui.theme.EventsComposeTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.eventscompose.features.events.data.model.EventsResponseItem
-import com.example.eventscompose.features.events.presentation.event_details.component.TopBarEventDetails
 import com.example.eventscompose.features.events.presentation.EventsViewModel
+import com.example.eventscompose.features.events.presentation.event_details.component.TopBarEventDetails
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EventDetailsScreen(
     modifier: Modifier = Modifier,
-    event : EventsResponseItem,
+    eventId: String,
     onBackClick: () -> Unit,
-//    viewModel: EventsViewModel = hiltViewModel(),
+    viewModel: EventsViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
+    when (uiState) {
+        is EventsViewModel.EventsUiState.Success -> {
 
+            val event =
+                (uiState as EventsViewModel.EventsUiState.Success).events?.find { it.id == eventId }
+            Log.d("EventDetailsScreen", "event = $event")
+
+            if (event != null) {
+                EventDetailsContent(
+                    event = event,
+                    onBackClick = onBackClick,
+                    viewModel = viewModel
+                )
+            } else {
+                Log.d("EventDetailsScreen", "onBackClick from event = null")
+
+                LaunchedEffect(Unit) { onBackClick() }
+            }
+        }
+
+        is EventsViewModel.EventsUiState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        is EventsViewModel.EventsUiState.Error -> {
+            Log.d("EventDetailsScreen", "onBackClick from error")
+            LaunchedEffect(Unit) {
+                onBackClick()
+            }
+        }
+
+        is EventsViewModel.EventsUiState.Nothing -> return
     }
+
+}
+
+@Composable
+private fun EventDetailsContent(
+    event: EventsResponseItem,
+    onBackClick: () -> Unit,
+    viewModel: EventsViewModel
+) {
     Scaffold(
         topBar = { TopBarEventDetails(onBackClick = onBackClick) }) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
@@ -122,14 +167,18 @@ fun EventDetailsScreen(
             )
 
             //add to calendar button
-            Button(onClick = {/*TODO*/},
-                modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally)) {
+            Button(
+                onClick = {/*TODO*/ },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.CenterHorizontally)
+            ) {
                 Text(
                     "Add to calendar",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium
-                    )
+                )
             }
 
         }

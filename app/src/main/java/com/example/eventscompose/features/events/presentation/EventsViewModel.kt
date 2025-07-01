@@ -1,6 +1,7 @@
 package com.example.eventscompose.features.events.presentation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -70,6 +71,7 @@ class EventsViewModel @Inject constructor(
                         _uiState.value =
                             (_uiState.value as EventsUiState.Success).copy(categories = it.data)
                     } else {
+                        Log.d("EventsViewModel", "setting events-list to null")
                         _uiState.value = EventsUiState.Success(null, it.data)
                     }
                 }
@@ -86,7 +88,10 @@ class EventsViewModel @Inject constructor(
     }
 
     fun getEventById(targetId: String) : EventsResponseItem?{
-        return (uiState.value as EventsUiState.Success).events?.find { it.id == targetId }
+        val event = (uiState.value as EventsUiState.Success).events?.find { it.id.equals(targetId) }
+        Log.d("EventsViewModel", "ui State = ${(uiState.value::class.simpleName)}")
+        Log.d("EventsViewModel", "Event = $event")
+        return event
     }
 
 

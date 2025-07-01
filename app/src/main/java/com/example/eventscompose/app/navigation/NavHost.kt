@@ -3,18 +3,24 @@ package com.example.eventscompose.app.navigation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.eventscompose.app.navigation.route.EventRoutes
-import com.example.eventscompose.features.events.data.model.EventsResponseItem
+import com.example.eventscompose.features.events.presentation.EventsViewModel
 import com.example.eventscompose.features.events.presentation.event_details.EventDetailsScreen
 import com.example.eventscompose.features.events.presentation.events.EventScreen
 
+//FIXME : not sure if we should include the MainActivityViewModel into the params of NavHost cuz
+// what does nav host has to do with MainActivityViewModel. the reason i added the MainActivityViewModel
+// here is so that it is generated with a proper lifecycle (and scoping the lifecycle to NavHost seems logical)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NavHost(navController: NavHostController) {
+fun NavHost(
+    navController: NavHostController,
+) {
 
     NavHost(
         navController = navController,
@@ -25,10 +31,17 @@ fun NavHost(navController: NavHostController) {
         }
         composable<EventRoutes.EventDetails> {
             val eventDetails = it.toRoute<EventRoutes.EventDetails>()
-//            EventDetailsScreen(
-//                eventId = eventDetails.eventId,
-//                onBackClick = {navController.popBackStack()}
-//            )
+
+            //fetch the VM from parent (events-list-screen) to avoid extra api calls that happen in
+            //the init block if you create a new EventsVM
+            val eventsBackStackEntry = navController.getBackStackEntry<EventRoutes.Events>()
+            val eventsViewModel: EventsViewModel = hiltViewModel(eventsBackStackEntry)
+
+            EventDetailsScreen(
+                eventId = eventDetails.eventId,
+                onBackClick = { navController.popBackStack() },
+                viewModel = eventsViewModel
+            )
         }
     }
 }

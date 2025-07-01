@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalTime
@@ -30,14 +31,50 @@ class EventsViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        //TODO : convert to async await instead of separate coroutines
+        loadData()
+    }
+
+    private fun loadData() {
         viewModelScope.launch {
-            getEvents()
-        }
-        viewModelScope.launch {
-            getCategories()
+            combine(
+                getEventsUseCase.invoke(),
+                getCategoriesUseCase.invoke()
+            ) { //combine two flows into one flow that emits two objects
+                eventsResource: Resource<List<EventsResponseItem>>,
+                categoriesResource: Resource<List<CategoriesResponseItem>>
+                ->
+
+                // Combine both resources into a single state
+                when {
+                    eventsResource is Resource.Loading || categoriesResource is Resource.Loading -> {
+                       return@combine EventsUiState.Loading
+                    }
+
+                    eventsResource is Resource.Success && categoriesResource is Resource.Success -> {
+                        return@combine EventsUiState.Success(
+                            events = eventsResource.data,
+                            categories = categoriesResource.data
+                        )
+                    }
+
+                    eventsResource is Resource.Error -> {
+                        EventsUiState.Error(eventsResource.message ?: "Events loading failed")
+                    }
+
+                    categoriesResource is Resource.Error -> {
+                        EventsUiState.Error(
+                            categoriesResource.message ?: "Categories loading failed"
+                        )
+                    }
+
+                    else -> EventsUiState.Loading
+                }
+            }.collect { newState ->
+                _uiState.value = newState
+            }
         }
     }
+
 
     private suspend fun getEvents() {
         getEventsUseCase.invoke().collect {
@@ -71,7 +108,6 @@ class EventsViewModel @Inject constructor(
                         _uiState.value =
                             (_uiState.value as EventsUiState.Success).copy(categories = it.data)
                     } else {
-                        Log.d("EventsViewModel", "setting events-list to null")
                         _uiState.value = EventsUiState.Success(null, it.data)
                     }
                 }
@@ -87,18 +123,18 @@ class EventsViewModel @Inject constructor(
         }
     }
 
-    fun getEventById(targetId: String) : EventsResponseItem?{
+    fun getEventById(targetId: String): EventsResponseItem? {
         val event = (uiState.value as EventsUiState.Success).events?.find { it.id.equals(targetId) }
-        Log.d("EventsViewModel", "ui State = ${(uiState.value::class.simpleName)}")
-        Log.d("EventsViewModel", "Event = $event")
         return event
     }
 
 
-
     sealed class EventsUiState {
         object Nothing : EventsUiState()
-        data class Success(val events: List<EventsResponseItem>?, val categories: List<CategoriesResponseItem>?) :
+        data class Success(
+            val events: List<EventsResponseItem>?,
+            val categories: List<CategoriesResponseItem>?
+        ) :
             EventsUiState()
 
         data class Error(val message: String?) : EventsUiState()
@@ -130,7 +166,6 @@ class EventsViewModel @Inject constructor(
 
         return groupedEvents
     }
-
 
 
     //needs android Oreo (android 8) or above

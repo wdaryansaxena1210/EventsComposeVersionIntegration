@@ -41,10 +41,9 @@ fun EventDetailsScreen(
     when (uiState) {
         is EventsViewModel.EventsUiState.Success -> {
 
+            // fetch the event with the same eventId and display it
             val event =
                 (uiState as EventsViewModel.EventsUiState.Success).events?.find { it.id == eventId }
-            Log.d("EventDetailsScreen", "event = $event")
-
             if (event != null) {
                 EventDetailsContent(
                     event = event,
@@ -52,12 +51,12 @@ fun EventDetailsScreen(
                     viewModel = viewModel
                 )
             } else {
-                Log.d("EventDetailsScreen", "onBackClick from event = null")
-
+                //event list is present but the list does not contain event with id=eventId
                 LaunchedEffect(Unit) { onBackClick() }
             }
         }
 
+        //EventsUiState is at loading state. should never occur but just in case
         is EventsViewModel.EventsUiState.Loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -67,8 +66,8 @@ fun EventDetailsScreen(
             }
         }
 
+        //should never occur but just in case
         is EventsViewModel.EventsUiState.Error -> {
-            Log.d("EventDetailsScreen", "onBackClick from error")
             LaunchedEffect(Unit) {
                 onBackClick()
             }
@@ -79,6 +78,7 @@ fun EventDetailsScreen(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun EventDetailsContent(
     event: EventsResponseItem,
@@ -88,7 +88,15 @@ private fun EventDetailsContent(
     Scaffold(
         topBar = { TopBarEventDetails(onBackClick = onBackClick) }) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
-//            val (startTime, endTime) = viewModel.findStartAndEndTime(event.eventDate, event.duration)
+
+            //check for invalid-format entries?
+            val (eventDate, eventStart) = event.eventDate.split(" ")
+            val (startTime, endTime) = viewModel.findStartAndEndTime(
+                eventStart,
+                event.duration
+            )
+            val day = viewModel.dateToDay(eventDate)
+            //displayed in ui : startTime, endTime and day
 
             //when title
             Text(
@@ -104,7 +112,7 @@ private fun EventDetailsContent(
 
             //when info
             Text(
-                text = "${event.eventDate}, ${event.duration}",
+                text = "$day :  $startTime - $endTime",
                 modifier = Modifier.padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
@@ -206,7 +214,7 @@ private fun EventDetailsContent(
 //        subject = "Android Development Workshop",
 //        views = "156"
 //        ),
-//        onBackClick = { Log.d("PreviewEventDetailsScreen", " onBackClick") },
+//        onBackClick = { },
 //        )
 //}
 

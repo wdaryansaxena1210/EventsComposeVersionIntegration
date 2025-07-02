@@ -24,8 +24,10 @@ import com.example.eventscompose.features.events.data.model.CategoriesResponseIt
 import com.example.eventscompose.features.events.data.model.EventsResponseItem
 import com.example.eventscompose.features.events.presentation.EventsViewModel
 import com.example.eventscompose.features.events.presentation.EventsViewModel.EventsUiState
+import com.example.eventscompose.features.events.presentation.events.component.Calendar
 import com.example.eventscompose.features.events.presentation.events.component.EventList
 import com.example.eventscompose.features.events.presentation.events.component.TopBarEvents
+import java.time.LocalDate
 import kotlin.Boolean
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -89,30 +91,38 @@ fun EventsContent(
             events
         )
     }
-
+    //categories and date
     var selectedCategory by remember { mutableStateOf("-1") }
     var showCategoryMenu: Boolean by remember { mutableStateOf(false) }
+    var showCalender : Boolean by remember { mutableStateOf(false) }
+    var selectedDate : LocalDate by remember { mutableStateOf(LocalDate.now()) }
 
 
     //top app bar in scaffold
     Scaffold(
         topBar = {
             TopBarEvents(
-                groupedEvents = groupedEvents,
                 categories = categories,
                 onCategorySelected = { it -> selectedCategory = it },
                 showCategoryMenu = showCategoryMenu,
                 onToggleCategoryMenu = {showCategoryMenu = !showCategoryMenu},
-//            onCalendarToggle = "",
-//            onToggleCategoryMenu = ""
+                onCalendarToggle = {showCalender = !showCalender},
             )
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
 
+            if(showCalender)
+                Calendar(
+                    selectedDate = selectedDate,
+                    onDateSelected = { date -> selectedDate = date; showCalender = !showCalender },
+                    run = {println()}
+                )
+
             //actual list of events
             EventList(
                 groupedEvents = groupedEvents,
+                selectedDate = selectedDate,
                 selectedCategory = selectedCategory,
                 vm = viewModel,
                 onEventClick = { event -> navController.navigate(EventRoutes.EventDetails(event.id)) }

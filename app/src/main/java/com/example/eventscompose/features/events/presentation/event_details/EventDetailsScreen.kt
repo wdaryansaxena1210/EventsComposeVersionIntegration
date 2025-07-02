@@ -42,8 +42,8 @@ fun EventDetailsScreen(
         is EventsViewModel.EventsUiState.Success -> {
 
             // fetch the event with the same eventId and display it
-            val event =
-                (uiState as EventsViewModel.EventsUiState.Success).events?.find { it.id == eventId }
+            val event = viewModel.getEventById(eventId)
+//                (uiState as EventsViewModel.EventsUiState.Success).events?.find { it.id == eventId }
             if (event != null) {
                 EventDetailsContent(
                     event = event,

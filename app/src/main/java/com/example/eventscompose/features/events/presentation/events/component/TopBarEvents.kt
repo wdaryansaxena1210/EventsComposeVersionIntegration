@@ -21,11 +21,10 @@ import com.example.eventscompose.features.events.data.model.EventsResponseItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarEvents(
-    groupedEvents: Map<String, List<EventsResponseItem>>,
     categories: List<CategoriesResponseItem>,
     onCategorySelected: (String) -> Unit,
     showCategoryMenu: Boolean,
-//    onCalendarToggle: () -> Unit,
+    onCalendarToggle: () -> Unit,
     onToggleCategoryMenu: () -> Unit
 ) {
 
@@ -72,7 +71,7 @@ fun TopBarEvents(
             }
 
             IconButton(onClick = {
-//                onCalendarToggle()
+                onCalendarToggle()
             }) {
                 Icon(Icons.Default.DateRange, contentDescription = "Date")
             }

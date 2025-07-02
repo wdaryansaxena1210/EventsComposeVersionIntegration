@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -77,55 +78,8 @@ class EventsViewModel @Inject constructor(
     }
 
 
-    private suspend fun getEvents() {
-        getEventsUseCase.invoke().collect {
-            when (it) {
-                is Resource.Success -> {
-                    if (_uiState.value is EventsUiState.Success) {
-                        _uiState.value =
-                            (_uiState.value as EventsUiState.Success).copy(events = it.data)
-                    } else {
-                        _uiState.value = EventsUiState.Success(it.data, null)
-                    }
-                }
-
-                is Resource.Error -> {
-                    _uiState.value = EventsUiState.Error(it.message ?: "A unknown error occurred")
-                }
-
-                is Resource.Loading -> {
-                    _uiState.value = EventsUiState.Loading
-                }
-            }
-        }
-
-    }
-
-    private suspend fun getCategories() {
-        getCategoriesUseCase.invoke().collect {
-            when (it) {
-                is Resource.Success -> {
-                    if (_uiState.value is EventsUiState.Success) {
-                        _uiState.value =
-                            (_uiState.value as EventsUiState.Success).copy(categories = it.data)
-                    } else {
-                        _uiState.value = EventsUiState.Success(null, it.data)
-                    }
-                }
-
-                is Resource.Error -> {
-                    _uiState.value = EventsUiState.Error(it.message ?: "An unknown error occurred")
-                }
-
-                is Resource.Loading -> {
-                    _uiState.value = EventsUiState.Loading
-                }
-            }
-        }
-    }
-
     fun getEventById(targetId: String): EventsResponseItem? {
-        val event = (uiState.value as EventsUiState.Success).events?.find { it.id.equals(targetId) }
+        val event = (uiState.value as EventsUiState.Success).events?.find { it.id == targetId }
         return event
     }
 
@@ -180,12 +134,16 @@ class EventsViewModel @Inject constructor(
             return Pair(formattedStart, "")
         }
 
-
-
         val (durHours, durMinutes) = duration.split(":").map { it.toIntOrNull() ?: 0 }
         val end = start.plusHours(durHours.toLong()).plusMinutes(durMinutes.toLong())
         val formattedEnd = end.format(formatter)
 
         return Pair(formattedStart, formattedEnd)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun stringToLocalDate(strDate: String): LocalDate {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        return LocalDate.parse(strDate, formatter)
     }
 }

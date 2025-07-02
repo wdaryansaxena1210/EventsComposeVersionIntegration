@@ -1,7 +1,10 @@
 package com.example.eventscompose.features.events.presentation.event_details
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -17,16 +21,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.eventscompose.features.events.data.model.EventsResponseItem
 import com.example.eventscompose.features.events.presentation.EventsViewModel
 import com.example.eventscompose.features.events.presentation.event_details.component.TopBarEventDetails
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -73,7 +84,7 @@ fun EventDetailsScreen(
             }
         }
 
-        is EventsViewModel.EventsUiState.Nothing -> return
+        is EventsViewModel.EventsUiState.Idle -> return
     }
 
 }
@@ -85,20 +96,103 @@ private fun EventDetailsContent(
     onBackClick: () -> Unit,
     viewModel: EventsViewModel
 ) {
+    val context = LocalContext.current
+    val calendarState by viewModel.calendarState.collectAsStateWithLifecycle()
+
+    // Permission launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            viewModel.addEventToCalendar(context, event)
+        } else {
+            // Handle permission denied - could show a snackbar or dialog
+        }
+    }
+
+    // Handle calendar state changes
+    LaunchedEffect(calendarState) {
+        when (calendarState) {
+            is EventsViewModel.CalendarState.Success -> {
+                // Auto-clear success state after 3 seconds
+                kotlinx.coroutines.delay(3000)
+                viewModel.clearCalendarState()
+            }
+
+            is EventsViewModel.CalendarState.Error -> {
+                // Auto-clear error state after 5 seconds
+                kotlinx.coroutines.delay(5000)
+                viewModel.clearCalendarState()
+            }
+
+            else -> { /* No action needed */
+            }
+        }
+    }
+
     Scaffold(
-        topBar = { TopBarEventDetails(onBackClick = onBackClick) }) { innerPadding ->
+        topBar = {
+            TopBarEventDetails(
+                onBackClick = onBackClick,
+                eventId = event.id
+            )
+        }
+    ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
 
-            //check for invalid-format entries for eventDate?
-            val (eventDate, eventStart) = event.eventDate.split(" ") //what if no " "?
-            val (startTime, endTime) = viewModel.findStartAndEndTime(
-                eventStart,
-                event.duration
-            )
-            val day = viewModel.dateToDay(eventDate)
-            //displayed in ui : startTime, endTime and day
+            // Parse date for display (format: "2025-07-04 00:00:00")
+            val eventDateTime = remember(event.eventDate) {
+                try {
+                    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    formatter.parse(event.eventDate)
+                } catch (e: Exception) {
+                    null
+                }
+            }
 
-            //when title
+            val displayDate = remember(eventDateTime) {
+                eventDateTime?.let {
+                    val dayFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault())
+                    dayFormatter.format(it)
+                } ?: "Date not available"
+            }
+
+            val displayTime = remember(eventDateTime, event.duration) {
+                if (eventDateTime != null) {
+                    val timeFormatter = SimpleDateFormat("h:mm a", Locale.getDefault())
+                    val startTime = timeFormatter.format(eventDateTime)
+
+                    // Calculate end time if duration is provided
+                    if (event.duration.isNotBlank() && event.duration != "0:00") {
+                        val endTime = try {
+                            val parts = event.duration.split(":")
+                            val hours = parts[0].toIntOrNull() ?: 0
+                            val minutes = parts[1].toIntOrNull() ?: 0
+
+                            val endCalendar = Calendar.getInstance().apply {
+                                time = eventDateTime
+                                add(Calendar.HOUR_OF_DAY, hours)
+                                add(Calendar.MINUTE, minutes)
+                            }
+                            timeFormatter.format(endCalendar.time)
+                        } catch (e: Exception) {
+                            null
+                        }
+
+                        if (endTime != null) {
+                            "$startTime - $endTime"
+                        } else {
+                            startTime
+                        }
+                    } else {
+                        startTime
+                    }
+                } else {
+                    "Time not available"
+                }
+            }
+
+            // When title
             Text(
                 "When",
                 style = MaterialTheme.typography.titleMedium,
@@ -110,14 +204,14 @@ private fun EventDetailsContent(
                     .padding(8.dp)
             )
 
-            //when info
+            // When info
             Text(
-                text = "$day :  $startTime - $endTime",
+                text = "$displayDate\n$displayTime",
                 modifier = Modifier.padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            //Where title
+            // Where title
             Text(
                 "Where",
                 style = MaterialTheme.typography.titleMedium,
@@ -129,14 +223,14 @@ private fun EventDetailsContent(
                     .padding(8.dp)
             )
 
-            //Where info
+            // Where info
             Text(
-                text = event.location,
+                text = event.location.ifBlank { "Location not specified" },
                 modifier = Modifier.padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            //cost title
+            // Cost title
             Text(
                 "Cost",
                 style = MaterialTheme.typography.titleMedium,
@@ -148,14 +242,14 @@ private fun EventDetailsContent(
                     .padding(8.dp)
             )
 
-            //Cost info
+            // Cost info
             Text(
-                text = event.cost,
+                text = event.cost.ifBlank { "Free" },
                 modifier = Modifier.padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            //Event Description title
+            // Event Description title
             Text(
                 "Event Description",
                 style = MaterialTheme.typography.titleMedium,
@@ -167,54 +261,105 @@ private fun EventDetailsContent(
                     .padding(8.dp)
             )
 
-            //Event Description info
+            // Event Description info
             Text(
-                text = event.shortDesc,
+                text = event.shortDesc.ifBlank { "No description available" },
                 modifier = Modifier.padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            //add to calendar button
+            // Contact info (if available)
+            if (event.email.isNotBlank() || event.phone.isNotBlank()) {
+                Text(
+                    "Contact",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .padding(horizontal = 24.dp)
+                        .padding(8.dp)
+                )
+
+                Column(modifier = Modifier.padding(8.dp)) {
+                    if (event.email.isNotBlank()) {
+                        Text(
+                            text = "Email: ${event.email}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    if (event.phone.isNotBlank()) {
+                        Text(
+                            text = "Phone: ${event.phone}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+
+            // Add to calendar button
             Button(
-                onClick = {/*TODO*/ },
+                onClick = {
+                    // Check if permission is already granted
+                    if (ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.WRITE_CALENDAR
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        viewModel.addEventToCalendar(context, event)
+                    } else {
+                        permissionLauncher.launch(Manifest.permission.WRITE_CALENDAR)
+                    }
+                },
+                enabled = calendarState !is EventsViewModel.CalendarState.Loading,
                 modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
-                Text(
-                    "Add to calendar",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                if (calendarState is EventsViewModel.CalendarState.Loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text(
+                        "Add to calendar",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
             }
 
+            // Status messages
+            when (calendarState) {
+                is EventsViewModel.CalendarState.Success -> {
+                    Text(
+                        "Event added to calendar successfully!",
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.CenterHorizontally),
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                is EventsViewModel.CalendarState.Error -> {
+                    Text(
+                        "Failed to add event: ${(calendarState as EventsViewModel.CalendarState.Error).message}",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.CenterHorizontally),
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                else -> { /* No message */
+                }
+            }
         }
     }
 }
 
-
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview
-//@Composable
-//fun PreviewEventDetailsScreen(modifier: Modifier = Modifier) {
-//    EventDetailsScreen(
-//        event = EventsResponseItem(
-//        category = "Academic",
-//        channelId = "12345",
-//        cost = "Free",
-//        datePosted = "2024-12-15 13:00",
-//        duration = "2 hours",
-//        email = "contact@event.com",
-//        eventDate = "2024-12-20",
-//        id = "event_001",
-//        location = "Memorial Union",
-//        phone = "(515) 294-4123",
-//        shortDesc = "Join us for an exciting workshop on mobile app development using Jetpack Compose.",
-//        subject = "Android Development Workshop",
-//        views = "156"
-//        ),
-//        onBackClick = { },
-//        )
-//}
 

@@ -1,13 +1,14 @@
 package com.example.eventscompose.features.events.presentation
 
+import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventscompose.core.utils.Resource
 import com.example.eventscompose.features.events.data.model.CategoriesResponseItem
 import com.example.eventscompose.features.events.data.model.EventsResponseItem
+import com.example.eventscompose.features.events.domain.use_case.add_event_to_calendar.AddEventToCalendarUseCase
 import com.example.eventscompose.features.events.domain.use_case.get_categories.GetCategoriesUseCase
 import com.example.eventscompose.features.events.domain.use_case.get_events.GetEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,10 +26,11 @@ import java.util.Locale
 @HiltViewModel
 class EventsViewModel @Inject constructor(
     private val getEventsUseCase: GetEventsUseCase,
-    private val getCategoriesUseCase: GetCategoriesUseCase
+    private val getCategoriesUseCase: GetCategoriesUseCase,
+    private val addEventToCalendarUseCase: AddEventToCalendarUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<EventsUiState>(EventsUiState.Nothing)
+    private val _uiState = MutableStateFlow<EventsUiState>(EventsUiState.Idle)
     val uiState = _uiState.asStateFlow()
 
     init {
@@ -85,7 +87,7 @@ class EventsViewModel @Inject constructor(
 
 
     sealed class EventsUiState {
-        object Nothing : EventsUiState()
+        object Idle : EventsUiState()
         data class Success(
             val events: List<EventsResponseItem>?,
             val categories: List<CategoriesResponseItem>?
@@ -145,5 +147,39 @@ class EventsViewModel @Inject constructor(
     fun stringToLocalDate(strDate: String): LocalDate {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         return LocalDate.parse(strDate, formatter)
+    }
+
+
+    /*
+    Functions for adding events to calendar
+     */
+
+
+    private val _calendarState = MutableStateFlow<CalendarState>(CalendarState.Idle)
+    val calendarState = _calendarState.asStateFlow()
+
+    fun addEventToCalendar(context: Context, event: EventsResponseItem) {
+        viewModelScope.launch {
+            _calendarState.value = CalendarState.Loading
+
+            val result = addEventToCalendarUseCase.invoke(context, event)
+
+            _calendarState.value = if (result.isSuccess) {
+                CalendarState.Success
+            } else {
+                CalendarState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun clearCalendarState() {
+        _calendarState.value = CalendarState.Idle
+    }
+
+    sealed class CalendarState {
+        object Idle : CalendarState()
+        object Loading : CalendarState()
+        object Success : CalendarState()
+        data class Error(val message: String) : CalendarState()
     }
 }

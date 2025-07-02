@@ -57,7 +57,7 @@ fun EventScreen(
                 CircularProgressIndicator()
             }
 
-            EventsUiState.Nothing -> {
+            EventsUiState.Idle -> {
                 Text(uiState::class.simpleName.toString())
             }
 

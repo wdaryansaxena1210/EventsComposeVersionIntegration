@@ -6,7 +6,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import com.example.eventscompose.features.events.data.model.EventsResponseItem
+import com.example.eventscompose.features.events.data.model.Event
 import com.example.eventscompose.features.events.presentation.EventsViewModel
 import java.time.LocalDate
 
@@ -14,9 +14,9 @@ import java.time.LocalDate
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EventList(
-    groupedEvents: Map<String, List<EventsResponseItem>>,
+    groupedEvents: Map<String, List<Event>>,
     vm: EventsViewModel,
-    onEventClick: (EventsResponseItem) -> Unit,
+    onEventClick: (Event) -> Unit,
     selectedCategory: String,
     selectedDate: LocalDate
 ) {

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class EventsResponseItem (
+data class Event (
     val category: String,
     @SerializedName("channel_id") val channelId: String,
     val cost: String,

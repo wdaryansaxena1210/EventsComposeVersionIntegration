@@ -5,14 +5,14 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.provider.CalendarContract
-import com.example.eventscompose.features.events.data.model.EventsResponseItem
+import com.example.eventscompose.features.events.data.model.Event
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
 class AddEventToCalendarUseCase @Inject constructor() {
 
-    operator fun invoke(context: Context, event: EventsResponseItem): Result<Unit> {
+    operator fun invoke(context: Context, event: Event): Result<Unit> {
         return try {
             val contentResolver: ContentResolver = context.contentResolver
 

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,12 +17,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.eventscompose.app.navigation.route.EventRoutes
-import com.example.eventscompose.features.events.data.model.CategoriesResponseItem
-import com.example.eventscompose.features.events.data.model.EventsResponseItem
+import com.example.eventscompose.features.events.data.model.Category
+import com.example.eventscompose.features.events.data.model.Event
 import com.example.eventscompose.features.events.presentation.EventsViewModel
 import com.example.eventscompose.features.events.presentation.EventsViewModel.EventsUiState
 import com.example.eventscompose.features.events.presentation.events.component.Calendar
@@ -64,11 +67,11 @@ fun EventScreen(
             is EventsUiState.Success -> {
                 EventsContent(
                     events = (uiState as EventsUiState.Success).events
-                        ?: emptyList<EventsResponseItem>(),
+                        ?: emptyList<Event>(),
                     viewModel = viewModel,
                     navController = navController,
                     categories = (uiState as EventsUiState.Success).categories
-                        ?: emptyList<CategoriesResponseItem>()
+                        ?: emptyList<Category>()
                 )
             }
         }
@@ -78,15 +81,14 @@ fun EventScreen(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EventsContent(
-    modifier: Modifier = Modifier,
-    events: List<EventsResponseItem>,
+    events: List<Event>,
     navController: NavController,
-    categories: List<CategoriesResponseItem>,
+    categories: List<Category>,
     viewModel: EventsViewModel = hiltViewModel()
 ) {
 
     //first group all events by date
-    val groupedEvents: Map<String, List<EventsResponseItem>> = remember(events) {
+    val groupedEvents: Map<String, List<Event>> = remember(events) {
         viewModel.sortEventsByDate(
             events
         )
@@ -103,6 +105,7 @@ fun EventsContent(
         topBar = {
             TopBarEvents(
                 categories = categories,
+                selectedCategoryId = selectedCategory,
                 onCategorySelected = { it -> selectedCategory = it },
                 showCategoryMenu = showCategoryMenu,
                 onToggleCategoryMenu = {showCategoryMenu = !showCategoryMenu},
@@ -112,12 +115,13 @@ fun EventsContent(
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
 
-            if(showCalender)
+            if(showCalender) {
                 Calendar(
-                    selectedDate = selectedDate,
-                    onDateSelected = { date -> selectedDate = date; showCalender = !showCalender },
-                    run = {println()}
+                    onDateSelected = { date -> selectedDate = date},
                 )
+                HorizontalDivider(modifier = Modifier.shadow(4.dp),thickness = 4.dp)
+            }
+
 
             //actual list of events
             EventList(

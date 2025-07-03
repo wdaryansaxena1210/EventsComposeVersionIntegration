@@ -6,8 +6,8 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventscompose.core.utils.Resource
-import com.example.eventscompose.features.events.data.model.CategoriesResponseItem
-import com.example.eventscompose.features.events.data.model.EventsResponseItem
+import com.example.eventscompose.features.events.data.model.Category
+import com.example.eventscompose.features.events.data.model.Event
 import com.example.eventscompose.features.events.domain.use_case.add_event_to_calendar.AddEventToCalendarUseCase
 import com.example.eventscompose.features.events.domain.use_case.get_categories.GetCategoriesUseCase
 import com.example.eventscompose.features.events.domain.use_case.get_events.GetEventsUseCase
@@ -21,6 +21,8 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 @HiltViewModel
@@ -44,8 +46,8 @@ class EventsViewModel @Inject constructor(
                 getEventsUseCase.invoke(),
                 getCategoriesUseCase.invoke()
             ) { //combine two flows into one flow that emits two objects
-                eventsResource: Resource<List<EventsResponseItem>>,
-                categoriesResource: Resource<List<CategoriesResponseItem>>
+                    eventsResource: Resource<List<Event>>,
+                    categoriesResource: Resource<List<Category>>
                 ->
 
                 // Combine both resources into a single state
@@ -80,7 +82,7 @@ class EventsViewModel @Inject constructor(
     }
 
 
-    fun getEventById(targetId: String): EventsResponseItem? {
+    fun getEventById(targetId: String): Event? {
         val event = (uiState.value as EventsUiState.Success).events?.find { it.id == targetId }
         return event
     }
@@ -89,8 +91,8 @@ class EventsViewModel @Inject constructor(
     sealed class EventsUiState {
         object Idle : EventsUiState()
         data class Success(
-            val events: List<EventsResponseItem>?,
-            val categories: List<CategoriesResponseItem>?
+            val events: List<Event>?,
+            val categories: List<Category>?
         ) :
             EventsUiState()
 
@@ -112,12 +114,12 @@ class EventsViewModel @Inject constructor(
         return eventDate?.let { dayFormat.format(it).toString() } ?: " "
     }
 
-    fun sortEventsByDate(events: List<EventsResponseItem>): Map<String, List<EventsResponseItem>> {
+    fun sortEventsByDate(events: List<Event>): Map<String, List<Event>> {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         //"yyyy-MM-dd HH:mm:ss" to "yyyy-MM-dd"
         val sortedEvents =
             events.sortedByDescending { dateFormat.parse(it.eventDate.split(" ")[0]) }.reversed()
-        val groupedEvents: Map<String, List<EventsResponseItem>> =
+        val groupedEvents: Map<String, List<Event>> =
             sortedEvents.groupBy { it.eventDate.split(" ")[0] }
 
 
@@ -158,7 +160,7 @@ class EventsViewModel @Inject constructor(
     private val _calendarState = MutableStateFlow<CalendarState>(CalendarState.Idle)
     val calendarState = _calendarState.asStateFlow()
 
-    fun addEventToCalendar(context: Context, event: EventsResponseItem) {
+    fun addEventToCalendar(context: Context, event: Event) {
         viewModelScope.launch {
             _calendarState.value = CalendarState.Loading
 
@@ -174,6 +176,43 @@ class EventsViewModel @Inject constructor(
 
     fun clearCalendarState() {
         _calendarState.value = CalendarState.Idle
+    }
+
+
+    fun displayTime(
+        eventDateTime: Date?,
+        event: Event
+    ): String? = if (eventDateTime != null) {
+        val timeFormatter = SimpleDateFormat("h:mm a", Locale.getDefault())
+        val startTime = timeFormatter.format(eventDateTime)
+
+        // Calculate end time if duration is provided
+        if (event.duration.isNotBlank() && event.duration != "0:00") {
+            val endTime = try {
+                val parts = event.duration.split(":")
+                val hours = parts[0].toIntOrNull() ?: 0
+                val minutes = parts[1].toIntOrNull() ?: 0
+
+                val endCalendar = Calendar.getInstance().apply {
+                    time = eventDateTime
+                    add(Calendar.HOUR_OF_DAY, hours)
+                    add(Calendar.MINUTE, minutes)
+                }
+                timeFormatter.format(endCalendar.time)
+            } catch (e: Exception) {
+                null
+            }
+
+            if (endTime != null) {
+                "$startTime - $endTime"
+            } else {
+                startTime
+            }
+        } else {
+            startTime
+        }
+    } else {
+        "Time not available"
     }
 
     sealed class CalendarState {

@@ -1,6 +1,5 @@
 package com.example.eventscompose.features.events.presentation.events.component
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,18 +17,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.eventscompose.features.events.data.model.EventsResponseItem
+import com.example.eventscompose.features.events.data.model.Event
 
 @Composable
 internal fun EventItem(
-    event: EventsResponseItem,
+    event: Event,
     findStartAndEndTime: (String, String) -> Pair<String, String>,
-    onEventClick: (EventsResponseItem) -> Unit
+    onEventClick: (Event) -> Unit
 ) {
     val (start, end) = findStartAndEndTime(event.eventDate.split(" ")[1], event.duration)
     Card(
         modifier = Modifier
-            .padding(2.dp)
+            .padding(horizontal = 4.dp, vertical = 2.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .clickable { onEventClick(event) }

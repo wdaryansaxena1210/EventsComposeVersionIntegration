@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -31,11 +32,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.eventscompose.features.events.data.model.EventsResponseItem
+import com.example.eventscompose.features.events.data.model.Event
 import com.example.eventscompose.features.events.presentation.EventsViewModel
 import com.example.eventscompose.features.events.presentation.event_details.component.TopBarEventDetails
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Locale
 
 
@@ -92,7 +92,7 @@ fun EventDetailsScreen(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun EventDetailsContent(
-    event: EventsResponseItem,
+    event: Event,
     onBackClick: () -> Unit,
     viewModel: EventsViewModel
 ) {
@@ -140,6 +140,7 @@ private fun EventDetailsContent(
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
 
+            //CALENDAR
             // Parse date for display (format: "2025-07-04 00:00:00")
             val eventDateTime = remember(event.eventDate) {
                 try {
@@ -158,38 +159,7 @@ private fun EventDetailsContent(
             }
 
             val displayTime = remember(eventDateTime, event.duration) {
-                if (eventDateTime != null) {
-                    val timeFormatter = SimpleDateFormat("h:mm a", Locale.getDefault())
-                    val startTime = timeFormatter.format(eventDateTime)
-
-                    // Calculate end time if duration is provided
-                    if (event.duration.isNotBlank() && event.duration != "0:00") {
-                        val endTime = try {
-                            val parts = event.duration.split(":")
-                            val hours = parts[0].toIntOrNull() ?: 0
-                            val minutes = parts[1].toIntOrNull() ?: 0
-
-                            val endCalendar = Calendar.getInstance().apply {
-                                time = eventDateTime
-                                add(Calendar.HOUR_OF_DAY, hours)
-                                add(Calendar.MINUTE, minutes)
-                            }
-                            timeFormatter.format(endCalendar.time)
-                        } catch (e: Exception) {
-                            null
-                        }
-
-                        if (endTime != null) {
-                            "$startTime - $endTime"
-                        } else {
-                            startTime
-                        }
-                    } else {
-                        startTime
-                    }
-                } else {
-                    "Time not available"
-                }
+                viewModel.displayTime(eventDateTime, event)
             }
 
             // When title
@@ -299,6 +269,7 @@ private fun EventDetailsContent(
 
             // Add to calendar button
             Button(
+                shape = RoundedCornerShape(12.dp),
                 onClick = {
                     // Check if permission is already granted
                     if (ContextCompat.checkSelfPermission(
@@ -324,9 +295,9 @@ private fun EventDetailsContent(
                 } else {
                     Text(
                         "Add to calendar",
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleLarge
                     )
                 }
             }
@@ -355,11 +326,11 @@ private fun EventDetailsContent(
                     )
                 }
 
-                else -> { /* No message */
-                }
+                else -> { /* No message */                }
             }
         }
     }
 }
+
 
 

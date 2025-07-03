@@ -1,7 +1,7 @@
 package com.example.eventscompose.features.events.data
 
-import com.example.eventscompose.features.events.data.model.CategoriesResponseItem
-import com.example.eventscompose.features.events.data.model.EventsResponseItem
+import com.example.eventscompose.features.events.data.model.Category
+import com.example.eventscompose.features.events.data.model.Event
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
@@ -21,7 +21,7 @@ interface EventsApi {
         @Query("weeks") weeks: String = "-1",
         @Query("key") key: String,
         @QueryMap params: Map<String, String> = mapOf()
-    ): List<EventsResponseItem>
+    ): List<Event>
 
     @GET
     suspend fun getCategories(
@@ -29,6 +29,6 @@ interface EventsApi {
         @Query("key") key: String,
         @Query("categories") categories : String = "-1",
         @QueryMap params: Map<String, String> = mapOf()
-    ): List<CategoriesResponseItem>
+    ): List<Category>
 
 }

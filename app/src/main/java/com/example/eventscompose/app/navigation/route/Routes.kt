@@ -1,14 +1,10 @@
 package com.example.eventscompose.app.navigation.route
 
-import kotlinx.serialization.Serializable
 
 
-sealed class EventRoutes{
+object EventRoutes {
+    const val Events = "events"
+    const val EventDetails = "event_details/{eventId}"
 
-    @Serializable
-    object Events : EventRoutes()
-
-    @Serializable
-    data class EventDetails(val eventId : String)
+    fun eventDetailsRoute(eventId: String) = "event_details/$eventId"
 }
-

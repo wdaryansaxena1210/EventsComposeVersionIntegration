@@ -12,7 +12,6 @@ import com.example.eventscompose.features.events.domain.use_case.add_event_to_ca
 import com.example.eventscompose.features.events.domain.use_case.get_categories.GetCategoriesUseCase
 import com.example.eventscompose.features.events.domain.use_case.get_events.GetEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -24,6 +23,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
 @HiltViewModel
 class EventsViewModel @Inject constructor(

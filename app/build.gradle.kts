@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+//    alias(libs.plugins.kotlin.compose)
 
     //hilt
     alias(libs.plugins.hilt.android)
@@ -10,19 +10,20 @@ plugins {
 //    id("com.google.dagger.hilt.android")
 
     //serialization
-    alias(libs.plugins.kotlin.serialization)
+//removed during version integration phase
+//    alias(libs.plugins.kotlin.serialization)
 
     //extra
 }
 
 android {
     namespace = "com.example.eventscompose"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.eventscompose"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -38,12 +39,26 @@ android {
             )
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+//    compileOptions {
+//        sourceCompatibility = JavaVersion.VERSION_1_8
+//        targetCompatibility = JavaVersion.VERSION_1_8
+//    }
+//    kotlinOptions {
+//        jvmTarget = "1.8"
+//    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     buildFeatures {
         compose = true
@@ -68,6 +83,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //lifecycle aware state collection
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+
     //navigation
     implementation(libs.androidx.navigation.compose)
 
@@ -88,8 +107,8 @@ dependencies {
 //    kaptTest ("com.google.dagger:hilt-compiler:2.56.2")
 
     //serialization
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.retrofit2.kotlinx.serialization.converter)
+//    implementation(libs.kotlinx.serialization.json)
+//    implementation(libs.retrofit2.kotlinx.serialization.converter)
 
 
     //GSON

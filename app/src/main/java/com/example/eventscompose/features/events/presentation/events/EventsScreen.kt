@@ -7,9 +7,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -125,7 +124,7 @@ fun EventsContent(
                 Calendar(
                     onDateSelected = { date -> selectedDate = date },
                 )
-            HorizontalDivider(modifier = Modifier.shadow(4.dp))
+            Divider(modifier = Modifier.shadow(4.dp))
 
             //actual list of events
             EventList(
@@ -133,7 +132,9 @@ fun EventsContent(
                 selectedDate = selectedDate,
                 selectedCategory = selectedCategory,
                 vm = viewModel,
-                onEventClick = { event -> navController.navigate(EventRoutes.EventDetails(event.id)) }
+                onEventClick = { event ->
+                    navController.navigate(EventRoutes.eventDetailsRoute(event.id))
+                }
             )
         }
     }

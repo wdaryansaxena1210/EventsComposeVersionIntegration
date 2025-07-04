@@ -3,20 +3,19 @@ package com.example.eventscompose.features.events.presentation.event_details.com
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarEventDetails(modifier: Modifier = Modifier, onBackClick: () -> Unit, eventId: String) {
+fun TopBarEventDetails(onBackClick: () -> Unit, eventId: String) {
     val context = LocalContext.current
     TopAppBar(
         title = {},
@@ -24,7 +23,7 @@ fun TopBarEventDetails(modifier: Modifier = Modifier, onBackClick: () -> Unit, e
         navigationIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
+                    Icons.Default.ArrowBack,
                     contentDescription = "back"
                 )
             }

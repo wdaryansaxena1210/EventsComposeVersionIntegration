@@ -2,12 +2,18 @@
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.kotlin.compose) apply false
+
+// removed during version integration phase
+    // alias(libs.plugins.kotlin.compose) apply false
 
     //hilt plugins
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.ksp) apply false
 
     //extra
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
+//removed during version integration phase
+//    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
+
 }
+
+

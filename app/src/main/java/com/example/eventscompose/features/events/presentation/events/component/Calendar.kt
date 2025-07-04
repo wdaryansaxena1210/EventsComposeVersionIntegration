@@ -36,8 +36,7 @@ fun Calendar(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ){
         DatePicker(
-            colors = DatePickerDefaults.colors()
-                .copy(containerColor = MaterialTheme.colorScheme.surface, ),
+            colors = DatePickerDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             state = datePickerState,
             title = null,
             headline = null,

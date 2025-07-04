@@ -42,7 +42,6 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EventDetailsScreen(
-    modifier: Modifier = Modifier,
     eventId: String,
     onBackClick: () -> Unit,
     viewModel: EventsViewModel = hiltViewModel()

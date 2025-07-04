@@ -19,7 +19,7 @@ internal fun EventsDateHeader(
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.background)
             .padding(8.dp),
     ) {
         Text(

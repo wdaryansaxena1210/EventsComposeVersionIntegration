@@ -2,12 +2,15 @@ package com.example.eventscompose.features.events.presentation.events
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +34,6 @@ import com.example.eventscompose.features.events.presentation.events.component.C
 import com.example.eventscompose.features.events.presentation.events.component.EventList
 import com.example.eventscompose.features.events.presentation.events.component.TopBarEvents
 import java.time.LocalDate
-import kotlin.Boolean
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -96,8 +98,8 @@ fun EventsContent(
     //categories and date
     var selectedCategory by remember { mutableStateOf("-1") }
     var showCategoryMenu: Boolean by remember { mutableStateOf(false) }
-    var showCalender : Boolean by remember { mutableStateOf(false) }
-    var selectedDate : LocalDate by remember { mutableStateOf(LocalDate.now()) }
+    var showCalender: Boolean by remember { mutableStateOf(false) }
+    var selectedDate: LocalDate by remember { mutableStateOf(LocalDate.now()) }
 
 
     //top app bar in scaffold
@@ -108,20 +110,22 @@ fun EventsContent(
                 selectedCategoryId = selectedCategory,
                 onCategorySelected = { it -> selectedCategory = it },
                 showCategoryMenu = showCategoryMenu,
-                onToggleCategoryMenu = {showCategoryMenu = !showCategoryMenu},
-                onCalendarToggle = {showCalender = !showCalender},
+                onToggleCategoryMenu = { showCategoryMenu = !showCategoryMenu },
+                onCalendarToggle = { showCalender = !showCalender },
             )
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
 
-            if(showCalender) {
+            if (showCalender)
                 Calendar(
-                    onDateSelected = { date -> selectedDate = date},
+                    onDateSelected = { date -> selectedDate = date },
                 )
-                HorizontalDivider(modifier = Modifier.shadow(4.dp),thickness = 4.dp)
-            }
-
+            HorizontalDivider(modifier = Modifier.shadow(4.dp))
 
             //actual list of events
             EventList(

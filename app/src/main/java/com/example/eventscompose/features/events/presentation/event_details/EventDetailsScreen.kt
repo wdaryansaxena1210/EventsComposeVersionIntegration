@@ -169,7 +169,6 @@ private fun EventDetailsContent(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(horizontal = 24.dp)
                     .padding(8.dp)
             )
@@ -177,7 +176,11 @@ private fun EventDetailsContent(
             // When info
             Text(
                 text = "$displayDate\n$displayTime",
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
 
@@ -188,7 +191,6 @@ private fun EventDetailsContent(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(horizontal = 24.dp)
                     .padding(8.dp)
             )
@@ -196,7 +198,11 @@ private fun EventDetailsContent(
             // Where info
             Text(
                 text = event.location.ifBlank { "Location not specified" },
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
 
@@ -207,7 +213,6 @@ private fun EventDetailsContent(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(horizontal = 24.dp)
                     .padding(8.dp)
             )
@@ -215,7 +220,11 @@ private fun EventDetailsContent(
             // Cost info
             Text(
                 text = event.cost.ifBlank { "Free" },
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
 
@@ -226,7 +235,6 @@ private fun EventDetailsContent(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(horizontal = 24.dp)
                     .padding(8.dp)
             )
@@ -234,7 +242,11 @@ private fun EventDetailsContent(
             // Event Description info
             Text(
                 text = event.shortDesc.ifBlank { "No description available" },
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
 
@@ -246,16 +258,21 @@ private fun EventDetailsContent(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.primaryContainer)
                         .padding(horizontal = 24.dp)
                         .padding(8.dp)
                 )
 
-                Column(modifier = Modifier.padding(8.dp)) {
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(8.dp),
+                ) {
                     if (event.email.isNotBlank()) {
                         Text(
                             text = "Email: ${event.email}",
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
                         )
                     }
                     if (event.phone.isNotBlank()) {
@@ -295,7 +312,9 @@ private fun EventDetailsContent(
                 } else {
                     Text(
                         "Add to calendar",
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -326,7 +345,8 @@ private fun EventDetailsContent(
                     )
                 }
 
-                else -> { /* No message */                }
+                else -> { /* No message */
+                }
             }
         }
     }

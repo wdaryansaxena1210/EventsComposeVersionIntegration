@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
 //    alias(libs.plugins.kotlin.compose)
 
@@ -21,11 +21,11 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.eventscompose"
+//        applicationId = "com.example.eventscompose"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+//        versionCode = 1
+//        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
